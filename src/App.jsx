@@ -1,122 +1,50 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
-import './App.css'
+import { useState } from "react";
+import Welcome from "./components/Welcome";
+import ConversationTab from "./components/ConversationTab";
+import VocabularyTab from "./components/VocabularyTab";
+import GrammarTab from "./components/GrammarTab";
 
-function App() {
-  const [count, setCount] = useState(0)
+const TABS = [
+  { id: "converse", icon: "💬", label: "Converse" },
+  { id: "vocab", icon: "🃏", label: "Vocab" },
+  { id: "grammar", icon: "✏️", label: "Grammar" },
+];
+
+function MainApp({ language, level, onBack }) {
+  const [tab, setTab] = useState("converse");
 
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
+    <div style={{ minHeight: "100vh", background: "#0b0a13", color: "#f0ecfa" }}>
+      {/* Header */}
+      <div style={{ padding: "0.7rem 1rem", borderBottom: "1px solid #2e2b45", display: "flex", alignItems: "center", gap: "0.75rem", background: "#161423", position: "sticky", top: 0, zIndex: 10 }}>
+        <button onClick={onBack} style={{ background: "none", border: "none", color: "#7c7890", cursor: "pointer", fontSize: "1.1rem" }}>←</button>
+        <div style={{ fontFamily: "Georgia, serif", fontSize: "1.2rem", flex: 1 }}>Lingua</div>
+        <div style={{ fontSize: "0.7rem", background: "#201e30", border: "1px solid #2e2b45", borderRadius: 6, padding: "0.2rem 0.55rem", color: "#7c7890" }}>
+          {language} · {level}
         </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
+      </div>
 
-      <div className="ticks"></div>
+      {/* Tab content */}
+      {tab === "converse" && <ConversationTab language={language} level={level} />}
+      {tab === "vocab" && <VocabularyTab language={language} level={level} />}
+      {tab === "grammar" && <GrammarTab language={language} level={level} />}
 
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
-
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
-  )
+      {/* Bottom nav */}
+      <div style={{ position: "fixed", bottom: 0, left: 0, right: 0, background: "#161423", borderTop: "1px solid #2e2b45", display: "flex", zIndex: 10 }}>
+        {TABS.map(t => (
+          <button key={t.id} onClick={() => setTab(t.id)}
+            style={{ flex: 1, padding: "0.7rem 0.5rem", background: "none", border: "none", cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", gap: "0.15rem", color: tab === t.id ? "#f0c040" : "#7c7890", fontFamily: "sans-serif" }}>
+            <span style={{ fontSize: "1.2rem" }}>{t.icon}</span>
+            <span style={{ fontSize: "0.6rem", fontWeight: 600 }}>{t.label}</span>
+          </button>
+        ))}
+      </div>
+    </div>
+  );
 }
 
-export default App
+export default function App() {
+  const [session, setSession] = useState(null);
+  if (!session) return <Welcome onStart={(lang, level) => setSession({ lang, level })} />;
+  return <MainApp language={session.lang} level={session.level} onBack={() => setSession(null)} />;
+}

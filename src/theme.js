@@ -1,0 +1,15 @@
+export const T = {
+    bg: "#0b0a13",
+    surface: "#161423",
+    surface2: "#201e30",
+    border: "#2e2b45",
+    accent: "#f0c040",
+    accentDim: "rgba(240,192,64,0.12)",
+    accentGlow: "rgba(240,192,64,0.25)",
+    red: "#e05c5c",
+    green: "#5cc878",
+    text: "#f0ecfa",
+    muted: "#7c7890",
+    font: "'Playfair Display', Georgia, serif",
+    body: "'Mulish', sans-serif",
+  };
