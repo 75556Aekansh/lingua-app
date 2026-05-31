@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { callAI, buildSystemPrompt } from "../utils/api";
 
 export default function GrammarTab({ language, level }) {
@@ -8,6 +8,7 @@ export default function GrammarTab({ language, level }) {
   const [loading, setLoading] = useState(false);
   const [checking, setChecking] = useState(false);
   const [streak, setStreak] = useState(0);
+  const usedPrompts = useRef([]);
 
   const generate = async () => {
     setLoading(true);
@@ -15,14 +16,20 @@ export default function GrammarTab({ language, level }) {
     setAnswer("");
     setExercise(null);
 
+    const avoidList = usedPrompts.current.length > 0
+      ? `\nDo NOT repeat any of these prompts you already used: ${usedPrompts.current.map(p => `"${p}"`).join(", ")}`
+      : "";
+
     const reply = await callAI(
       [{ role: "user", content: "Give me a grammar exercise." }],
-      buildSystemPrompt(language, level, "grammar")
+      buildSystemPrompt(language, level, "grammar") + avoidList
     );
 
     try {
       const clean = reply.replace(/```json|```/g, "").trim();
-      setExercise(JSON.parse(clean));
+      const parsed = JSON.parse(clean);
+      usedPrompts.current = [...usedPrompts.current, parsed.prompt];
+      setExercise(parsed);
     } catch {
       setExercise({
         type: "translate",
@@ -80,6 +87,13 @@ Return ONLY a JSON: {"correct":true/false,"score":0-100,"correction":"correct an
         </div>
       )}
 
+      {/* Session counter */}
+      {usedPrompts.current.length > 0 && (
+        <div style={{ fontSize: "0.72rem", color: "#7c7890", display: "flex", alignItems: "center", gap: "0.4rem" }}>
+          ✅ {usedPrompts.current.length} unique {usedPrompts.current.length === 1 ? "exercise" : "exercises"} done this session
+        </div>
+      )}
+
       {/* Loading */}
       {loading && (
         <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: 200, gap: "1rem" }}>
@@ -109,33 +123,15 @@ Return ONLY a JSON: {"correct":true/false,"score":0-100,"correction":"correct an
             )}
           </div>
 
-          {/* Answer box */}
-          <textarea
-            value={answer}
-            onChange={e => setAnswer(e.target.value)}
-            disabled={!!feedback}
-            placeholder="Type your answer…"
-            rows={3}
-            style={{
-              background: "#161423",
-              border: `1px solid ${feedback ? "#2e2b45" : "rgba(240,192,64,0.4)"}`,
-              borderRadius: 12, padding: "0.85rem 1rem",
-              color: "#f0ecfa", fontFamily: "sans-serif",
-              fontSize: "0.9rem", resize: "none", outline: "none", lineHeight: 1.5,
-            }}
-          />
+          {/* Answer */}
+          <textarea value={answer} onChange={e => setAnswer(e.target.value)} disabled={!!feedback}
+            placeholder="Type your answer…" rows={3}
+            style={{ background: "#161423", border: `1px solid ${feedback ? "#2e2b45" : "rgba(240,192,64,0.4)"}`, borderRadius: 12, padding: "0.85rem 1rem", color: "#f0ecfa", fontFamily: "sans-serif", fontSize: "0.9rem", resize: "none", outline: "none", lineHeight: 1.5 }} />
 
           {/* Check button */}
           {!feedback && (
             <button onClick={check} disabled={!answer.trim() || checking}
-              style={{
-                padding: "0.9rem",
-                background: answer.trim() && !checking ? "linear-gradient(135deg, #f0c040, #e07840)" : "#201e30",
-                border: "none", borderRadius: 12,
-                color: answer.trim() && !checking ? "#111" : "#7c7890",
-                fontSize: "0.95rem", fontWeight: 700,
-                cursor: answer.trim() && !checking ? "pointer" : "not-allowed",
-              }}>
+              style={{ padding: "0.9rem", background: answer.trim() && !checking ? "linear-gradient(135deg, #f0c040, #e07840)" : "#201e30", border: "none", borderRadius: 12, color: answer.trim() && !checking ? "#111" : "#7c7890", fontSize: "0.95rem", fontWeight: 700, cursor: answer.trim() && !checking ? "pointer" : "not-allowed" }}>
               {checking ? "Checking…" : "Check Answer →"}
             </button>
           )}
@@ -143,16 +139,10 @@ Return ONLY a JSON: {"correct":true/false,"score":0-100,"correction":"correct an
           {/* Feedback */}
           {feedback && (
             <>
-              <div style={{
-                background: "#201e30",
-                border: `1px solid ${feedback.correct ? "#5cc87833" : "#e05c5c33"}`,
-                borderRadius: 14, padding: "1.1rem 1.25rem",
-              }}>
+              <div style={{ background: "#201e30", border: `1px solid ${feedback.correct ? "#5cc87833" : "#e05c5c33"}`, borderRadius: 14, padding: "1.1rem 1.25rem" }}>
                 <div style={{ display: "flex", alignItems: "center", gap: "0.6rem", marginBottom: "0.65rem" }}>
                   <span style={{ fontSize: "1.3rem" }}>{feedback.correct ? "✅" : "❌"}</span>
-                  <span style={{ fontSize: "1.25rem", color: scoreColor, fontWeight: 700, fontFamily: "Georgia, serif" }}>
-                    {feedback.score}/100
-                  </span>
+                  <span style={{ fontSize: "1.25rem", color: scoreColor, fontWeight: 700, fontFamily: "Georgia, serif" }}>{feedback.score}/100</span>
                 </div>
                 {feedback.correction && (
                   <div style={{ marginBottom: "0.5rem", fontSize: "0.82rem" }}>
@@ -160,13 +150,9 @@ Return ONLY a JSON: {"correct":true/false,"score":0-100,"correction":"correct an
                     <span style={{ color: "#5cc878", fontWeight: 600 }}>{feedback.correction}</span>
                   </div>
                 )}
-                <div style={{ fontSize: "0.84rem", color: "#f0ecfa", lineHeight: 1.5, marginBottom: "0.4rem" }}>
-                  {feedback.explanation}
-                </div>
+                <div style={{ fontSize: "0.84rem", color: "#f0ecfa", lineHeight: 1.5, marginBottom: "0.4rem" }}>{feedback.explanation}</div>
                 {feedback.encouragement && (
-                  <div style={{ fontSize: "0.78rem", color: "#f0c040", fontStyle: "italic" }}>
-                    {feedback.encouragement}
-                  </div>
+                  <div style={{ fontSize: "0.78rem", color: "#f0c040", fontStyle: "italic" }}>{feedback.encouragement}</div>
                 )}
               </div>
 
