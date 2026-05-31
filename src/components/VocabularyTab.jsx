@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { callAI, buildSystemPrompt } from "../utils/api";
+import { supabase } from "../utils/supabase";
 
 const TOPICS = [
   "everyday life", "travel", "food", "work",
@@ -60,6 +61,16 @@ export default function VocabularyTab({ language, level }) {
     try {
       const clean = reply.replace(/```json|```/g, "").trim();
       setCards(JSON.parse(clean));
+      // Save vocab session to Supabase
+const { data: { user } } = await supabase.auth.getUser();
+if (user) {
+  await supabase.from("vocab_sessions").insert({
+    user_id: user.id,
+    language,
+    level,
+    topic: t,
+  });
+}
     } catch {
       setCards([]);
     }

@@ -5,11 +5,12 @@ import GrammarTab from "./components/GrammarTab";
 import {  useEffect,useState } from "react";
 import { supabase } from "./utils/supabase";
 import Auth from "./components/Auth";
-
+import ProgressTab from "./components/ProgressTab";
 const TABS = [
   { id: "converse", icon: "💬", label: "Converse" },
   { id: "vocab", icon: "🃏", label: "Vocab" },
   { id: "grammar", icon: "✏️", label: "Grammar" },
+  { id: "progress", icon: "📊", label: "Progress" },
 ];
 
 const CEFR_LEVELS = [
@@ -60,6 +61,7 @@ function MainApp({ language, level,user, onBack }) {
   {tab === "converse" && <ConversationTab language={language} level={level} />}
   {tab === "vocab" && <VocabularyTab language={language} level={level} />}
   {tab === "grammar" && <GrammarTab language={language} level={level} />}
+  {tab === "progress" && <ProgressTab language={language} level={level} user={user} />}
 </div>
 
       {/* Bottom nav */}

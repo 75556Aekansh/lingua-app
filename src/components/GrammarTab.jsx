@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { callAI, buildSystemPrompt } from "../utils/api";
+import { supabase } from "../utils/supabase";
 
 export default function GrammarTab({ language, level }) {
   const [exercise, setExercise] = useState(null);
@@ -60,6 +61,18 @@ Return ONLY a JSON: {"correct":true/false,"score":0-100,"correction":"correct an
       setFeedback(fb);
       if (fb.correct || fb.score >= 70) setStreak(s => s + 1);
       else setStreak(0);
+    
+      // Save score to Supabase
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        await supabase.from("grammar_scores").insert({
+          user_id: user.id,
+          language,
+          level,
+          score: fb.score,
+          correct: fb.correct,
+        });
+      }
     } catch {
       setFeedback({
         correct: false, score: 0,
