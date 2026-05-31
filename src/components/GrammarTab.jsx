@@ -10,7 +10,7 @@ export default function GrammarTab({ language, level }) {
   const [checking, setChecking] = useState(false);
   const [streak, setStreak] = useState(0);
   const usedPrompts = useRef([]);
-
+  const [error, setError] = useState("");
   const generate = async () => {
     setLoading(true);
     setFeedback(null);
@@ -32,6 +32,7 @@ export default function GrammarTab({ language, level }) {
       usedPrompts.current = [...usedPrompts.current, parsed.prompt];
       setExercise(parsed);
     } catch {
+      setError("Failed to generate exercise. Please try again.");
       setExercise({
         type: "translate",
         instruction: "Translate this into " + language,
@@ -93,6 +94,12 @@ Return ONLY a JSON: {"correct":true/false,"score":0-100,"correction":"correct an
   return (
     <div style={{ padding: "1rem", fontFamily: "sans-serif", display: "flex", flexDirection: "column", gap: "0.9rem" }}>
 
+{error && (
+  <div style={{ background: "rgba(224,92,92,0.1)", border: "1px solid rgba(224,92,92,0.3)", borderRadius: 8, padding: "0.65rem 0.85rem", fontSize: "0.82rem", color: "#e05c5c", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+    {error}
+    <button onClick={() => setError("")} style={{ background: "none", border: "none", color: "#e05c5c", cursor: "pointer", fontSize: "1rem" }}>✕</button>
+  </div>
+)}
       {/* Streak */}
       {streak > 0 && (
         <div style={{ display: "flex", alignItems: "center", gap: "0.4rem", fontSize: "0.82rem", color: "#f0c040", fontWeight: 600 }}>

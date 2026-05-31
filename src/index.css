@@ -8,3 +8,35 @@ body {
   background: #0b0a13;
   color: #f0ecfa;
 }
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: #0b0a13;
+  color: #f0ecfa;
+  font-family: sans-serif;
+  height: 100dvh;
+  overflow: hidden;
+}
+
+input, textarea, button {
+  color: #f0ecfa;
+}
+
+input::placeholder, textarea::placeholder {
+  color: #7c7890;
+}
+
+/* Smooth scrolling for all scrollable areas */
+* {
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+}
+
+/* Prevent content jumping when keyboard opens */
+html {
+  height: -webkit-fill-available;
+}

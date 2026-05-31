@@ -10,6 +10,7 @@ const TOPICS = [
 function VocabCard({ card, index }) {
   const [flipped, setFlipped] = useState(false);
 
+
   return (
     <div onClick={() => setFlipped(f => !f)}
       style={{ perspective: 800, cursor: "pointer", height: 160 }}>
@@ -50,6 +51,8 @@ export default function VocabularyTab({ language, level }) {
   const [cards, setCards] = useState([]);
   const [loading, setLoading] = useState(false);
   const [topic, setTopic] = useState("everyday life");
+  const [error, setError] = useState("");
+
 
   const generate = async (t = topic) => {
     setLoading(true);
@@ -73,6 +76,7 @@ if (user) {
 }
     } catch {
       setCards([]);
+      setError("Failed to generate cards .Please try again");
     }
     setLoading(false);
   };
@@ -107,6 +111,13 @@ if (user) {
           <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
         </div>
       )}
+
+{error && (
+  <div style={{ background: "rgba(224,92,92,0.1)", border: "1px solid rgba(224,92,92,0.3)", borderRadius: 8, padding: "0.65rem 0.85rem", fontSize: "0.82rem", color: "#e05c5c", marginBottom: "1rem", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+    {error}
+    <button onClick={() => setError("")} style={{ background: "none", border: "none", color: "#e05c5c", cursor: "pointer", fontSize: "1rem" }}>✕</button>
+  </div>
+)}
 
       {/* Cards grid */}
       {!loading && cards.length > 0 && (

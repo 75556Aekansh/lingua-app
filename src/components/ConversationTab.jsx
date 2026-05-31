@@ -15,6 +15,7 @@ export default function ConversationTab({ language, level }) {
   const [expanded, setExpanded] = useState({});
   const initialized = useRef(false);
   const messagesEnd = useRef(null);
+  const [error, setError] = useState("");
 
   // AI greeting on first load
   useEffect(() => {
@@ -48,11 +49,9 @@ export default function ConversationTab({ language, level }) {
     history.push({ role: "user", content: text });
     setMessages(prev => [...prev, { role: "user", raw: text }]);
 
-    const reply = await callAI(
-      history,
-      buildSystemPrompt(language, level, "converse")
-    );
-    setMessages(prev => [...prev, { role: "assistant", raw: reply }]);
+    const reply = await callAI(history, buildSystemPrompt(language, level, "converse"));
+    if (!reply) setError("Could not get a response. Check your connection and try again.");
+    else { setMessages(prev => [...prev, { role: "assistant", raw: reply }]); setError(""); }
     setLoading(false);
   };
 
@@ -139,7 +138,12 @@ export default function ConversationTab({ language, level }) {
         )}
         <div ref={messagesEnd} />
       </div>
-
+      {error && (
+  <div style={{ margin: "0 1rem 0.5rem", background: "rgba(224,92,92,0.1)", border: "1px solid rgba(224,92,92,0.3)", borderRadius: 8, padding: "0.65rem 0.85rem", fontSize: "0.82rem", color: "#e05c5c", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+    {error}
+    <button onClick={() => setError("")} style={{ background: "none", border: "none", color: "#e05c5c", cursor: "pointer", fontSize: "1rem" }}>✕</button>
+  </div>
+)}
       {/* Input bar */}
       <div style={{ padding: "0.75rem 1rem", borderTop: "1px solid #2e2b45", display: "flex", gap: "0.5rem", background: "#161423" }}>
         <input
