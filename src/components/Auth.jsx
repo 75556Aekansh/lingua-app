@@ -28,7 +28,11 @@ export default function Auth({ onAuth }) {
   const handleGoogle = async () => {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
-      options: { redirectTo: window.location.origin },
+      options: {
+        redirectTo: import.meta.env.DEV
+          ? "http://localhost:5173"
+          : "https://lingua-app-lyart.vercel.app",
+      },
     });
     if (error) setError(error.message);
   };
