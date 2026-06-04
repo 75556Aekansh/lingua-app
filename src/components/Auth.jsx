@@ -32,6 +32,10 @@ export default function Auth({ onAuth }) {
         redirectTo: import.meta.env.DEV
           ? "http://localhost:5173"
           : "https://lingua-app-lyart.vercel.app",
+        queryParams: {
+          access_type: "offline",
+          prompt: "consent",
+        },
       },
     });
     if (error) setError(error.message);
