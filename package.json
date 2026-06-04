@@ -2,7 +2,7 @@
   "name": "lingua-app",
   "private": true,
   "version": "0.0.0",
-    "scripts": {
+  "scripts": {
     "dev": "concurrently \"node server.js\" \"vite\"",
     "build": "vite build",
     "lint": "eslint .",
@@ -13,6 +13,7 @@
     "@capacitor/cli": "^8.3.4",
     "@capacitor/core": "^8.3.4",
     "@capacitor/ios": "^8.3.4",
+    "@supabase/supabase-js": "^2.107.0",
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
